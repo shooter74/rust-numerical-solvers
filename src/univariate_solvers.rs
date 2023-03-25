@@ -30,11 +30,12 @@ pub fn newton_solve<F, F2>(f : F, df : F2, x0 : f64, tol : f64, max_iter : u32) 
 
 /// @brief Newton's method for solving a function f(x) = 0
 /// @param f function to solve
-/// @param df derivative of function f
 /// @param x0 initial guess
 /// @param tol tolerance
+/// @param dx_num numerical differentiation step size
 /// @param max_iter maximum number of iterations
 /// @return solution
+/// @note This method uses numerical differentiation to compute the first and second derivatives.
 pub fn newton_solve_num<F>(f : F, x0 : f64, tol : f64, dx_num : f64, max_iter : u32) -> f64
 where F : Fn(f64) -> f64
 {
@@ -63,6 +64,41 @@ where F : Fn(f64) -> f64, F2 : Fn(f64) -> f64, F3 : Fn(f64) -> f64
         f_x = f(x);
         df_x = df(x);
         ddf_x = ddf(x);
+        if verbose {
+            println!("x = {}, f(x) = {}, df(x) = {}, ddf(x) = {}", x, f_x, df_x, ddf_x);
+        }
+        if f64::abs(f_x) < tol {
+            return Ok(x);
+        }
+        x = x - 2.0*f_x*df_x / (2.0*df_x.powi(2) - f_x*ddf_x);
+    }
+    return Err("Halley method did not converge after reaching the maximum number of iterations allowed.")
+}
+
+/// Halley's method for solving a function f(x) = 0
+/// @param f function to solve
+/// @param x0 initial guess
+/// @param tol tolerance
+/// @param dx_num numerical differentiation step size
+/// @param max_iter maximum number of iterations
+/// @return solution
+/// @note This method is more efficient than Newton's method, but requires the second derivative of f.
+/// @note This method uses numerical differentiation to compute the first and second derivatives.
+pub fn halley_solve_num<F>(f: F, x0: f64, tol: f64, dx_num : f64, max_iter: u32, verbose: bool) -> Result<f64, &'static str>
+where F : Fn(f64) -> f64
+{
+    let mut x: f64 = x0;
+    let mut f_x: f64;
+    let mut df_x: f64;
+    let mut ddf_x: f64;
+    let mut fx_m_dx: f64;
+    let mut fx_p_dx: f64;
+    for _i in 0..max_iter {
+        f_x = f(x);
+        fx_m_dx = f(x - dx_num);
+        fx_p_dx = f(x + dx_num);
+        df_x = (fx_p_dx - fx_m_dx)/(2.0*dx_num);
+        ddf_x = (fx_p_dx - 2.0*f_x + fx_m_dx) / (dx_num.powi(2));
         if verbose {
             println!("x = {}, f(x) = {}, df(x) = {}, ddf(x) = {}", x, f_x, df_x, ddf_x);
         }

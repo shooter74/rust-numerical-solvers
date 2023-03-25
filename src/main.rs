@@ -39,6 +39,7 @@ fn main() {
     let x_newton = univariate_solvers::newton_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), x0, tol, max_iter);
     let x_newton_num: f64 = univariate_solvers::newton_solve_num(&(fct as fn(f64) -> f64), x0, tol, dx_num, max_iter);
     let x_halley: f64 = univariate_solvers::halley_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), &(ddfct as fn(f64) -> f64), x0, tol, max_iter, false).unwrap();
+    let x_halley_num: f64 = univariate_solvers::halley_solve_num(&(fct as fn(f64) -> f64), x0, tol, dx_num, max_iter, false).unwrap();
     let x_bisection : f64 = univariate_solvers::bisection_solve(&(fct as fn(f64) -> f64), -5.0, 1.0, tol).unwrap();
     let x_secant : f64 = univariate_solvers::secant_solve(&(fct as fn(f64) -> f64), -1.0, 1.0, tol, max_iter);
     let x_ridder : f64 = univariate_solvers::ridder_solve(&(fct as fn(f64) -> f64), -5.0, 1.0, tol, max_iter).unwrap();
@@ -46,6 +47,7 @@ fn main() {
     println!("Newton's method       : x = {}\tf(x) = {}", x_newton, fct(x_newton));
     println!("Newton's method (num) : x = {}\tf(x) = {}", x_newton_num, fct(x_newton_num));
     println!("Halley's method       : x = {}\tf(x) = {}", x_halley, fct(x_halley));
+    println!("Halley's method (num) : x = {}\tf(x) = {}", x_halley_num, fct(x_halley_num));
     println!("Bisection             : x = {}\tf(x) = {}", x_bisection, fct(x_bisection));
     println!("Secant method         : x = {}\tf(x) = {}", x_secant, fct(x_secant));
     println!("Ridder's method       : x = {}\tf(x) = {}", x_ridder, fct(x_ridder));
