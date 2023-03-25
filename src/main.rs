@@ -35,7 +35,9 @@ fn main() {
     let tol : f64 = 1e-10;
     let max_iter : u32 = 100;
     let dx_num : f64 = 1e-6;
-    let x_mathematica = -3.26650043678562449167148755288;
+    let x_mathematica: f64 = -3.26650043678562449167148755288;// 30 digits of precision
+    let x_mathematica_2: f64 = -6.27133405258685307845641527902;// 30 digits of precision
+    let x_mathematica_3: f64 = -9.42553801930504142668603949182;// 30 digits of precision
     let x_newton = univariate_solvers::newton_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), x0, tol, max_iter);
     let x_newton_num: f64 = univariate_solvers::newton_solve_num(&(fct as fn(f64) -> f64), x0, tol, dx_num, max_iter);
     let x_halley: f64 = univariate_solvers::halley_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), &(ddfct as fn(f64) -> f64), x0, tol, max_iter, false).unwrap();
@@ -44,6 +46,8 @@ fn main() {
     let x_secant : f64 = univariate_solvers::secant_solve(&(fct as fn(f64) -> f64), -1.0, 1.0, tol, max_iter);
     let x_ridder : f64 = univariate_solvers::ridder_solve(&(fct as fn(f64) -> f64), -5.0, 1.0, tol, max_iter).unwrap();
     println!("Mathematica           : x = {}\tf(x) = {}", x_mathematica, fct(x_mathematica));
+    println!("Mathematica 2         : x = {}\tf(x) = {}", x_mathematica_2, fct(x_mathematica_2));
+    println!("Mathematica 3         : x = {}\tf(x) = {}", x_mathematica_3, fct(x_mathematica_3));
     println!("Newton's method       : x = {}\tf(x) = {}", x_newton, fct(x_newton));
     println!("Newton's method (num) : x = {}\tf(x) = {}", x_newton_num, fct(x_newton_num));
     println!("Halley's method       : x = {}\tf(x) = {}", x_halley, fct(x_halley));
