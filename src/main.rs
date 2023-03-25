@@ -24,8 +24,11 @@ fn main() {
     let x0 : f64 = 1.0;
     let tol : f64 = 1e-10;
     let max_iter : u32 = 100;
+    let dx_num : f64 = 1e-6;
     let x_mathematica = -3.26650043678562449167148755288;
     let x_newton = univariate_solvers::newton_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), x0, tol, max_iter);
-    println!("Mathematica     : x = {}", x_mathematica);
-    println!("Newton's method : x = {}", x_newton);
+    let x_newton_num: f64 = univariate_solvers::newton_solve_num(&(fct as fn(f64) -> f64), x0, tol, dx_num, max_iter);
+    println!("Mathematica           : x = {}", x_mathematica);
+    println!("Newton's method       : x = {}", x_newton);
+    println!("Newton's method (num) : x = {}", x_newton_num);
 }
