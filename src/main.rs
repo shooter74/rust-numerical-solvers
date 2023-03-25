@@ -29,8 +29,10 @@ fn main() {
     let x_newton = univariate_solvers::newton_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), x0, tol, max_iter);
     let x_newton_num: f64 = univariate_solvers::newton_solve_num(&(fct as fn(f64) -> f64), x0, tol, dx_num, max_iter);
     let x_bisection : f64 = univariate_solvers::bisection_solve(&(fct as fn(f64) -> f64), -5.0, 1.0, tol).unwrap();
-    println!("Mathematica           : x = {}", x_mathematica);
-    println!("Newton's method       : x = {}", x_newton);
-    println!("Newton's method (num) : x = {}", x_newton_num);
-    println!("Bisection             : x = {}", x_bisection);
+    let x_secant : f64 = univariate_solvers::secant_solve(&(fct as fn(f64) -> f64), -1.0, 1.0, tol, max_iter);
+    println!("Mathematica           : x = {}\tf(x) = {}", x_mathematica, fct(x_mathematica));
+    println!("Newton's method       : x = {}\tf(x) = {}", x_newton, fct(x_newton));
+    println!("Newton's method (num) : x = {}\tf(x) = {}", x_newton_num, fct(x_newton_num));
+    println!("Bisection             : x = {}\tf(x) = {}", x_bisection, fct(x_bisection));
+    println!("Secant method         : x = {}\tf(x) = {}", x_secant, fct(x_secant));
 }

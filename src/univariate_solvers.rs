@@ -47,6 +47,13 @@ where F : Fn(f64) -> f64
 // ------------------------ Bracketing methods ------------------------
 // --------------------------------------------------------------------
 
+/// @brief Bisection method for solving a function f(x) = 0
+/// @param f function to solve
+/// @param a left bracket
+/// @param b right bracket
+/// @param tol tolerance
+/// @return solution
+/// @note The interval [a, b] must bracket the root, meaning f(a) and f(b) must be of a different sign.
 pub fn bisection_solve<F>(f : F, mut a : f64, mut b : f64, tol : f64) -> Result<f64, &'static str>
 where F : Fn(f64) -> f64
 {
@@ -69,4 +76,35 @@ where F : Fn(f64) -> f64
         }
     }
     return Result::Ok((a + b)/2.0);
+}
+
+/// @brief Secant method for solving a function f(x) = 0
+/// @param f function to solve
+/// @param a left bracket
+/// @param b right bracket
+/// @param tol tolerance
+/// @param max_iter maximum number of iterations
+/// @return solution
+/// @note The interval [a, b] does not have to bracket the root.
+/// @note The secant method is not guaranteed to converge.
+pub fn secant_solve<F>(f : F, mut a : f64, mut b : f64, tol : f64, max_iter : u32) -> f64
+where F : Fn(f64) -> f64
+{
+    let mut c: f64 = (a + b)/2.0;
+    let mut fa: f64 = f(a);
+    let mut fb: f64 = f(b);
+    let mut fc: f64;
+    for _iter in 0..max_iter {
+        // c is x[n], a is x[n-1], b is x[n-2]
+        c = a - fa*(a - b)/(fa - fb);
+        fc = f(c);
+        b = a;
+        fb = fa;
+        a = c;
+        fa = fc;
+        if (b - a).abs() < tol {
+            break;
+        }
+    }
+    return c;
 }
