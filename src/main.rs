@@ -1,6 +1,7 @@
 extern crate colored;
 use colored::Colorize;
 mod univariate_solvers;
+mod univariate_minimizers;
 
 ///  x   sin(x)
 /// e  + ──────
@@ -43,7 +44,7 @@ fn check_result(x : f64, x_true : f64, tol : f64, test_name: &str, verbose: bool
         return 1;
     } else {
         if verbose {
-            println!("{}\t: x = {}\tf(x) = {}\t{} (expected {})", test_name_padded, format!("{:<20}", x), format!("{:<40}", fct(x)), "failed".red(), x_true);
+            println!("{}\t: x = {}\tf(x) = {}\t{} (expected {}, delta = {})", test_name_padded, format!("{:<20}", x), format!("{:<40}", fct(x)), "failed".red(), x_true, (x - x_true));
         } else {
             println!("{} {} : expected {}, got {}", test_name_padded, "failed".red(), x_true, x);
         }
@@ -60,18 +61,18 @@ fn print_test_results(num_tests_passed: u32, num_tests_total: u32) {
     }
 }
 
-fn main() {
-    println!("Testing Rust numerical solvers.");
-    let mut num_tests_passed : u32 = 0;
-    let num_tests_total : u32 = 7;
-    let verbose : bool = true;
+fn test_univariate_solvers(verbose: bool) {
+    println!("Testing univariate numerical solvers.");
     let x0 : f64 = 1.0;
     let tol : f64 = 1e-10;
     let max_iter : u32 = 100;
     let dx_num : f64 = 1e-6;
+    let mut num_tests_passed : u32 = 0;
+    let num_tests_total : u32 = 7;
+
     let x_mathematica: f64 = -3.26650043678562449167148755288;// 30 digits of precision
     let x_mathematica_2: f64 = -6.27133405258685307845641527902;// 30 digits of precision
-    let x_mathematica_3: f64 = -9.42553801930504142668603949182;// 30 digits of precision
+    // let x_mathematica_3: f64 = -9.42553801930504142668603949182;// 30 digits of precision
     let x_newton: f64 = univariate_solvers::newton_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), x0, tol, max_iter);
     let x_newton_num: f64 = univariate_solvers::newton_solve_num(&(fct as fn(f64) -> f64), x0, tol, dx_num, max_iter);
     let x_halley: f64 = univariate_solvers::halley_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), &(ddfct as fn(f64) -> f64), x0, tol, max_iter, false).unwrap();
@@ -88,4 +89,25 @@ fn main() {
     num_tests_passed += check_result(x_ridder, x_mathematica, tol, "Ridder's method", verbose);
 
     print_test_results(num_tests_passed, num_tests_total);
+}
+
+fn test_univariate_optimizers(verbose: bool) {
+    let tol : f64 = 1e-10;
+    let max_iter : u32 = 100;
+    let dx_num : f64 = 1e-6;
+    let mut num_tests_passed : u32 = 0;
+    let num_tests_total : u32 = 1;
+
+    let x_mathematica: f64 = -4.54295618675514754103476876324;// 30 digits of precision
+    let y_mathematica: f64 = -0.206327079359226884630654987440;// 30 digits of precision
+    let x_golden_section: f64 = univariate_minimizers::golden_section_minimize(&(fct as fn(f64) -> f64), -7.0, -1.0, tol);
+    num_tests_passed += check_result(x_golden_section, x_mathematica, tol*1e2, "Golden section search", verbose);
+    print_test_results(num_tests_passed, num_tests_total);
+}
+
+fn main() {
+    println!("Testing Rust numerical solvers.");
+    let verbose : bool = true;
+    test_univariate_solvers(verbose);
+    test_univariate_optimizers(verbose);
 }
