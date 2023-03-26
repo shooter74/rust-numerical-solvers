@@ -1,3 +1,5 @@
+extern crate colored;
+use colored::Colorize;
 mod univariate_solvers;
 
 ///  x   sin(x)
@@ -29,8 +31,40 @@ fn ddfct(x : f64) -> f64 {
     }
 }
 
+fn check_result(x : f64, x_true : f64, tol : f64, test_name: &str, verbose: bool) -> u32 {
+    let diff : f64 = (x - x_true).abs();
+    let test_name_padded: String = format!("{:<30}", test_name);
+    if diff < tol {
+        if verbose {
+            println!("{}\t: x = {}\tf(x) = {}\t{}", test_name_padded, format!("{:<20}", x), format!("{:<40}", fct(x)), "passed".green());
+        } else {
+            println!("{} {}", test_name_padded, "passed".green());
+        }
+        return 1;
+    } else {
+        if verbose {
+            println!("{}\t: x = {}\tf(x) = {}\t{} (expected {})", test_name_padded, format!("{:<20}", x), format!("{:<40}", fct(x)), "failed".red(), x_true);
+        } else {
+            println!("{} {} : expected {}, got {}", test_name_padded, "failed".red(), x_true, x);
+        }
+        return 0;
+    }
+}
+
+fn print_test_results(num_tests_passed: u32, num_tests_total: u32) {
+    let ratio_str:String = format!("{}/{} ({} %)", num_tests_passed, num_tests_total, ((num_tests_passed as f64)/(num_tests_total as f64)*100.0).round());
+    if num_tests_passed == num_tests_total {
+        println!("{} {}", "Tests passed:", ratio_str.green());
+    } else {
+        println!("{} {}", "Tests passed:", ratio_str.red());
+    }
+}
+
 fn main() {
     println!("Testing Rust numerical solvers.");
+    let mut num_tests_passed : u32 = 0;
+    let num_tests_total : u32 = 7;
+    let verbose : bool = true;
     let x0 : f64 = 1.0;
     let tol : f64 = 1e-10;
     let max_iter : u32 = 100;
@@ -38,21 +72,20 @@ fn main() {
     let x_mathematica: f64 = -3.26650043678562449167148755288;// 30 digits of precision
     let x_mathematica_2: f64 = -6.27133405258685307845641527902;// 30 digits of precision
     let x_mathematica_3: f64 = -9.42553801930504142668603949182;// 30 digits of precision
-    let x_newton = univariate_solvers::newton_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), x0, tol, max_iter);
+    let x_newton: f64 = univariate_solvers::newton_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), x0, tol, max_iter);
     let x_newton_num: f64 = univariate_solvers::newton_solve_num(&(fct as fn(f64) -> f64), x0, tol, dx_num, max_iter);
     let x_halley: f64 = univariate_solvers::halley_solve(&(fct as fn(f64) -> f64), &(dfct as fn(f64) -> f64), &(ddfct as fn(f64) -> f64), x0, tol, max_iter, false).unwrap();
     let x_halley_num: f64 = univariate_solvers::halley_solve_num(&(fct as fn(f64) -> f64), x0, tol, dx_num, max_iter, false).unwrap();
     let x_bisection : f64 = univariate_solvers::bisection_solve(&(fct as fn(f64) -> f64), -5.0, 1.0, tol).unwrap();
     let x_secant : f64 = univariate_solvers::secant_solve(&(fct as fn(f64) -> f64), -1.0, 1.0, tol, max_iter);
     let x_ridder : f64 = univariate_solvers::ridder_solve(&(fct as fn(f64) -> f64), -5.0, 1.0, tol, max_iter).unwrap();
-    println!("Mathematica           : x = {}\tf(x) = {}", x_mathematica, fct(x_mathematica));
-    println!("Mathematica 2         : x = {}\tf(x) = {}", x_mathematica_2, fct(x_mathematica_2));
-    println!("Mathematica 3         : x = {}\tf(x) = {}", x_mathematica_3, fct(x_mathematica_3));
-    println!("Newton's method       : x = {}\tf(x) = {}", x_newton, fct(x_newton));
-    println!("Newton's method (num) : x = {}\tf(x) = {}", x_newton_num, fct(x_newton_num));
-    println!("Halley's method       : x = {}\tf(x) = {}", x_halley, fct(x_halley));
-    println!("Halley's method (num) : x = {}\tf(x) = {}", x_halley_num, fct(x_halley_num));
-    println!("Bisection             : x = {}\tf(x) = {}", x_bisection, fct(x_bisection));
-    println!("Secant method         : x = {}\tf(x) = {}", x_secant, fct(x_secant));
-    println!("Ridder's method       : x = {}\tf(x) = {}", x_ridder, fct(x_ridder));
+    num_tests_passed += check_result(x_newton, x_mathematica, tol, "Newton's method", verbose);
+    num_tests_passed += check_result(x_newton_num, x_mathematica, tol, "Newton's method (num)", verbose);
+    num_tests_passed += check_result(x_halley, x_mathematica_2, tol, "Halley's method", verbose);
+    num_tests_passed += check_result(x_halley_num, x_mathematica_2, tol, "Halley's method (num)", verbose);
+    num_tests_passed += check_result(x_bisection, x_mathematica, tol, "Bisection method", verbose);
+    num_tests_passed += check_result(x_secant, x_mathematica, tol, "Secant method", verbose);
+    num_tests_passed += check_result(x_ridder, x_mathematica, tol, "Ridder's method", verbose);
+
+    print_test_results(num_tests_passed, num_tests_total);
 }
