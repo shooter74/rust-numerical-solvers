@@ -45,7 +45,7 @@ fn compute_simplex_size(simplex: &Vec<(na::DVector<f64>, f64)>) -> f64 {
 /// @param f  The function to optimize.
 /// @param x0 The starting point of the algorithm.
 /// @param simplex_size The maximum size of the simplex at initialization.
-pub fn nelder_mead<F>(f: F, x0: &na::DVector<f64>, simplex_size: f64, tol: f64, max_iter: u32, verbose: bool) -> (na::DVector<f64>, f64)
+pub fn nelder_mead_minimize<F>(f: F, x0: &na::DVector<f64>, simplex_size: f64, tol: f64, max_iter: u32, verbose: bool) -> (na::DVector<f64>, f64)
 where F : Fn(&na::DVector<f64>) -> f64
 {
     // Parameters

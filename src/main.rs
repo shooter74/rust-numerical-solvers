@@ -146,7 +146,7 @@ fn test_multivariate_optimizers(verbose: bool) {
     
     let x_true:        na::DVector<f64> = na::DVector::from_vec(vec![1.,1.]);
     let f_x_true:      f64 = rosenbrock(&x_true);
-    let sol_nelder_mead: (na::DVector<f64>, f64) = nelder_mead::nelder_mead(&(rosenbrock as fn(&na::DVector<f64>) -> f64), &na::DVector::from_vec(vec![2.0,-1.0]), 0.1, tol, max_iter, false);
+    let sol_nelder_mead: (na::DVector<f64>, f64) = nelder_mead::nelder_mead_minimize(&(rosenbrock as fn(&na::DVector<f64>) -> f64), &na::DVector::from_vec(vec![2.0,-1.0]), 0.1, tol, max_iter, false);
     // num_tests_passed += check_result(x_nelder_mead, x_true, tol*1e2, "Nelder-Mead", verbose);
     num_tests_passed += check_result_optim(&sol_nelder_mead.0, sol_nelder_mead.1, &x_true, f_x_true, tol_x, tol_f_x, "Nelder-Mead", verbose);
     print_test_results(num_tests_passed, num_tests_total);
