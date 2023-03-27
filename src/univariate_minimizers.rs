@@ -8,7 +8,7 @@
 pub fn golden_section_minimize<F>(f : F, mut a: f64, mut b: f64, tol: f64) -> f64
 where F : Fn(f64) -> f64
 {
-    let invphi: f64 = (f64::sqrt(5.0) - 1.0) / 2.0;  // 1 / phi
+    let invphi: f64 = (f64::sqrt(5.0) - 1.0) / 2.0;   // 1 / phi
     let invphi2: f64 = (3.0 - f64::sqrt(5.0)) / 2.0;  // 1 / phi^2
 
     a = f64::min(a, b);
