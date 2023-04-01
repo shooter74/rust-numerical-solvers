@@ -45,7 +45,7 @@ Here is a list of the univariate gradient-based solvers implemented in the libra
 
 ##### Derivative-free solvers
 
-Derivative-free solvers, as they name suggest, do not require the derivatives of the function in order to solve it. They are usually more robust, but suffer from a lower convergence rate. They are howeve very useful when the function to solve does not have a closed-form derivative, or when it is too noisy.
+Derivative-free solvers, as they name suggest, do not require the derivatives of the function in order to solve it. They are usually more robust, but suffer from a lower convergence rate. They are however very useful when the function to solve does not have a closed-form derivative, or when it is too noisy.
 
 Here is a list of the univariate derivative-free solvers implemented in the library :
 - Bisection method (`bisection_solve`)
@@ -69,11 +69,11 @@ Gradient-based optimizers require the gradient of the function in order to speed
 
 ##### Derivative-free optimizers
 
-Derivative-free optimizers do not require the gradient of the function and are generally more robust to noisy objective functions. Some optimizers are local and other are global. Local optimizers tend to converge to the minimum that is closest to the given starting point. Global minimizers are capable of exploring the solution space more extensively and can sometimes return the global minimum of the objective function. Some algorithms are also multimodal : they can return several distinct minima after a single run (particle swarm, differential evolution).
+Derivative-free optimizers do not require the gradient of the function and are generally more robust to noisy objective functions. Some optimizers are local and other are global. Local optimizers tend to converge to the minimum that is closest to the given starting point. Global minimizers are capable of exploring the solution space more extensively and can sometimes return the global minimum of the objective function.
 
-Here is a list of univariate derivative-free optimizers :
+Here is a list of univariate derivative-free optimizers implemented in the library :
 - Golden section search (`golden_section_minimize`)
-- Cubic Lagrange polynomial optimization (`cubic_lagrange_minimize`)
+- ~~Cubic Lagrange polynomial optimization (`cubic_lagrange_minimize`)~~
 
 #### Multivariate optimizers
 
@@ -87,5 +87,14 @@ Gradient-based optimizers require the gradient of the function in order to speed
 
 Derivative-free optimizers do not require the gradient of the function and are generally more robust to noisy objective functions.
 
-Here is a list of multivariate derivative-free optimizers :
+Here is a list of multivariate derivative-free optimizers implemented in the library :
 - Nelder-Mead (`nelder_mead`)
+- ~~Particle Swarm Optimization (`particle_swarm_minimize`)~~
+- ~~Differential evolution (`differential_evolution_minimize`)~~
+
+#### Least-squares solvers
+
+The following non-linear least-squares problem can be solved more efficiently using specialised techniques than generic optimizers :$$ \min_{\beta} \sum_{i=0}^{N} (f(x_i, \beta) - y_i)^2 $$
+
+Here is a list of multivariate non-linear least-squares solvers implemented in the library :
+- Gauss-Newton (`gauss_newton_lsqr`)

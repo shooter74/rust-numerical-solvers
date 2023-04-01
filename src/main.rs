@@ -4,6 +4,8 @@ extern crate nalgebra as na;
 mod univariate_solvers;
 mod univariate_minimizers;
 mod nelder_mead;
+mod particle_swarm_optimization;
+mod non_linear_least_squares;
 
 use colored::Colorize;
 
@@ -74,6 +76,26 @@ fn check_result_optim(x: &na::DVector<f64>, f_x: f64, x_true: &na::DVector<f64>,
     } else {
         if verbose {
             println!("{}\t: x = {}\tf(x) = {}\t{} (expected {}, delta = {})", test_name_padded, format!("{:<20}", x), format!("{:<40}", f_x), "failed".red(), x_true, (x - x_true));
+        } else {
+            println!("{} {} : expected {}, got {}", test_name_padded, "failed".red(), x_true, x);
+        }
+        return 0;
+    }
+}
+
+fn check_result_vector(x : &na::DVector<f64>, x_true : &na::DVector<f64>, tol : f64, test_name: &str, verbose: bool) -> u32 {
+    let diff : f64 = (x - x_true).norm();
+    let test_name_padded: String = format!("{:<30}", test_name);
+    if diff < tol {
+        if verbose {
+            println!("{}\t: x = {}\t{}", test_name_padded, format!("{:<20}", x), "passed".green());
+        } else {
+            println!("{} {}", test_name_padded, "passed".green());
+        }
+        return 1;
+    } else {
+        if verbose {
+            println!("{}\t: x = {}\t{} (expected {}, delta = {})", test_name_padded, format!("{:<20}", x), "failed".red(), x_true, (x - x_true));
         } else {
             println!("{} {} : expected {}, got {}", test_name_padded, "failed".red(), x_true, x);
         }
@@ -152,10 +174,51 @@ fn test_multivariate_optimizers(verbose: bool) {
     print_test_results(num_tests_passed, num_tests_total);
 }
 
+fn test_particle_swarm_debug() {
+    let n_particles: u32 = 10;
+    let lb: na::DVector<f64> = na::DVector::from_vec(vec![-5.0,-5.0]);
+    let ub: na::DVector<f64> = na::DVector::from_vec(vec![5.0,5.0]);
+    let tol: f64 = 1e-6;
+    let n_iter_max: u32 = 1000;
+    let rng_seed: u32 = 69;
+    let x: f64 = particle_swarm_optimization::particle_swarm_minimize(&rosenbrock, n_particles, &lb, &ub, tol, n_iter_max, rng_seed);
+    println!("x = {}", x);
+}
+
+fn test_non_linear_lsqr_solvers(verbose: bool) {
+    let mut num_tests_passed : u32 = 0;
+    let num_tests_total :      u32 = 1;
+
+    let tol:        f64 = 1e-6;
+    let dx_num:     f64 = 1e-7;
+    let n_iter_max: u32 = 1000;
+
+    let xp: na::DVector<f64> = na::DVector::from_vec(vec![0.038, 0.194, 0.425, 0.626, 1.253, 2.500, 3.740]);
+    let yp: na::DVector<f64> = na::DVector::from_vec(vec![0.050, 0.127, 0.094, 0.2122, 0.2729, 0.2665, 0.3317]);
+
+    fn fct_lsqr(x: &na::DVector<f64>, beta: &na::DVector<f64>) -> na::DVector<f64> {
+        let mut y: na::DVector<f64> = na::DVector::from_element(x.nrows(), 0.0);
+        for i in 0..x.nrows() {
+            y[i] = (beta[0] * x[i])/(beta[1] + x[i]);
+        }
+        return y;
+    }
+
+    let beta_numpy: na::DVector<f64> = na::DVector::from_vec(vec![0.3618368601272124, 0.5562663893098662]);
+    let mut beta_gauss_newton: na::DVector<f64> = na::DVector::from_vec(vec![0.9, 0.2]);
+    beta_gauss_newton = non_linear_least_squares::gauss_newton_lsqr(&xp, &yp, &fct_lsqr, &beta_gauss_newton, tol, n_iter_max, dx_num, false);
+    // println!("beta_gauss_newton = {}\tf(beta_gauss_newton) - yp = {}", beta_gauss_newton, fct_lsqr(&xp, &beta_gauss_newton) - yp);
+
+    num_tests_passed += check_result_vector(&beta_gauss_newton, &beta_numpy, tol, "Gauss-Newton least squares", verbose);
+    print_test_results(num_tests_passed, num_tests_total);
+}
+
 fn main() {
     println!("Testing Rust numerical solvers.");
     let verbose : bool = true;
     test_univariate_solvers(verbose);
     test_univariate_optimizers(verbose);
     test_multivariate_optimizers(verbose);
+    // test_particle_swarm_debug();// debug
+    test_non_linear_lsqr_solvers(verbose);
 }
